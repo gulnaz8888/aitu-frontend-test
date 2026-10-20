@@ -611,7 +611,6 @@ h1 span {
   flex: 1;
   padding: 23px 17px;
 }
-
 .expert-head {
   display: flex;
   align-items: flex-end;
@@ -657,8 +656,8 @@ h1 span {
 }
 
 .avatar.gold {
-  background: #f0e4cc;
-  color: #876425;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .avatar.blue {
@@ -1295,7 +1294,7 @@ footer > span {
 }
 
 .sidebar-bottom > a {
-  color: #8a5360;
+  color: #17283e;
 }
 
 .workspace-main {
@@ -1450,18 +1449,18 @@ footer > span {
 }
 
 .status-badge.success {
-  background: #e3ece7;
-  color: #365f4b;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .status-badge.warning {
-  background: #f1eadb;
-  color: #806329;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .status-badge.error {
-  background: #eee2e4;
-  color: #78434d;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .status-badge.navy {
@@ -2377,8 +2376,8 @@ footer > span {
 
 .clarify-action {
   border: 1px solid #9f6f45;
-  background: #f2ebe4;
-  color: #76502e;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .confirm-action {
@@ -2433,8 +2432,8 @@ footer > span {
 }
 
 .metric-icon.emerald {
-  background: #e4ece7;
-  color: #3f6752;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .metric-icon.blue {
@@ -2443,8 +2442,8 @@ footer > span {
 }
 
 .metric-icon.burgundy {
-  background: #eee3e5;
-  color: #784852;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .metric-cards p {
@@ -2628,8 +2627,8 @@ footer > span {
   width: 32px;
   height: 32px;
   place-items: center;
-  background: #e5ede8;
-  color: #426953;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .audit-icon.blue {
@@ -2638,13 +2637,13 @@ footer > span {
 }
 
 .audit-icon.gold {
-  background: #f0eadc;
-  color: #80642f;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .audit-icon.burgundy {
-  background: #efe4e6;
-  color: #774852;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .audit-icon .ui-icon {
@@ -3078,8 +3077,8 @@ footer > span {
 }
 
 .status-icon.warning {
-  background: #f1eadb;
-  color: #806329;
+  background: #ffffff; border: 1px solid #e1e6ea;
+  color: #17283e;
 }
 
 .contestant-grid {
@@ -3308,7 +3307,7 @@ footer > span {
   width: 32px;
   padding: 0;
   place-items: center;
-  color: #85515b;
+  color: #17283e;
 }
 
 .remove-file .ui-icon {
@@ -3352,7 +3351,7 @@ footer > span {
   border: 1px solid #d8c18f;
   border-radius: 50%;
   background: #f8f3e8;
-  color: #806329;
+  color: #17283e;
   font-size: 10px;
   font-weight: 700;
 }
