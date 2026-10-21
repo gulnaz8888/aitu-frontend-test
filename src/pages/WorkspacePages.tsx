@@ -53,11 +53,11 @@ function WorkspaceShell({
     <div className="workspace-shell">
       <header className="workspace-header">
         <Link className="workspace-brand" to="/">
-            <img 
-              src="/logo-trophy.png" 
-              alt="AITU Teaching Excellence Awards" 
-              className="w-12 h-12 object-contain bg-transparent border-0" 
-            />
+          <img 
+            src="/logo-trophy.png" 
+            alt="AITU Teaching Excellence Awards" 
+            className="w-14 h-14 object-contain" 
+          /> 
           <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
         </Link>
         <div className="workspace-header-actions">
@@ -160,11 +160,11 @@ export function ContestantWorkspace() {
     <div className="contestant-dashboard">
       <header className="workspace-header">
         <Link className="workspace-brand" to="/">
-        <img 
-          src="/logo-trophy.png" 
-          alt="AITU Teaching Excellence Awards" 
-          className="w-12 h-12 object-contain bg-transparent border-0" 
-        />
+          <img 
+            src="/logo-trophy.png" 
+            alt="AITU Teaching Excellence Awards" 
+            className="w-14 h-14 object-contain" 
+          /> 
           <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
         </Link>
         <nav className="contestant-nav" aria-label="Contestant workspace">

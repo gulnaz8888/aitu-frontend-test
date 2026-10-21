@@ -32,8 +32,8 @@ function ContestantPreview() {
         <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="w-12 h-12 object-contain bg-transparent border-0" 
-        />      
+          className="w-14 h-14 object-contain" 
+        />     
         <div className="preview-dots"><i /><i /><i /></div>
       </div>
       <div className="preview-body">
@@ -62,8 +62,8 @@ function ExpertPreview() {
         <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="w-12 h-12 object-contain bg-transparent border-0" 
-        />
+          className="w-14 h-14 object-contain" 
+        /> 
         <i className="active" /><i /><i /><i />
       </div>
       <div className="expert-content">
@@ -146,8 +146,8 @@ export default function LandingPage() {
         <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="w-12 h-12 object-contain bg-transparent border-0" 
-        />
+          className="w-14 h-14 object-contain" 
+        /> 
 
         <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label="Primary navigation">
           {navigation.map(([label, href]) => <a key={label} href={href} onClick={() => setMenuOpen(false)}>{label}</a>)}
