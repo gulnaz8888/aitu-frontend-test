@@ -53,7 +53,7 @@ function WorkspaceShell({
     <div className="workspace-shell">
       <header className="workspace-header">
         <Link className="workspace-brand" to="/">
-          <span className="brand-symbol">A</span>
+          <img src="/logo-trophy.png" alt="AITU Teaching Excellence Awards" className="brand-symbol object-contain" />
           <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
         </Link>
         <div className="workspace-header-actions">
@@ -75,7 +75,7 @@ function WorkspaceShell({
             {role === 'Administrator' && <a href="#reviewers"><Icon name="users" /> Reviewers</a>}
           </nav>
           <div className="sidebar-bottom">
-            <div className="edition-panel"><small>CURRENT EDITION</small><strong>2025 Global Awards</strong><span>Applications open</span></div>
+            <div className="edition-panel"><small>CURRENT EDITION</small><strong>2026 Global Awards</strong><span>Applications open</span></div>
             <Link to="/"><Icon name="logout" /> Return to website</Link>
           </div>
         </aside>
@@ -154,10 +154,14 @@ export function ContestantWorkspace() {
 
   return (
     <div className="contestant-dashboard">
-      <header className="contestant-header">
+      <header className="workspace-header">
         <Link className="workspace-brand" to="/">
-          <span className="brand-symbol">A</span>
-          <span><strong>AITU</strong><small>TEACHING EXCELLENCE AWARDS</small></span>
+          <img 
+            src="/logo-trophy.png" 
+            alt="AITU Teaching Excellence Awards" 
+            className="brand-symbol object-contain" 
+          />
+          <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
         </Link>
         <nav className="contestant-nav" aria-label="Contestant workspace">
           <a href="#overview">Overview</a>
@@ -177,9 +181,7 @@ export function ContestantWorkspace() {
       <main className="contestant-main">
         <section className="contestant-intro" id="overview">
           <div>
-            <span>2025 AWARDS · CONTESTANT PORTAL</span>
-            <h1>Welcome back, Gulnaz.</h1>
-            <p>Manage your application and supporting evidence in one place.</p>
+            <h1>Participant Portal</h1>
           </div>
           <div className="contestant-intro-actions">
             <span>Last saved today at 10:42</span>
@@ -194,7 +196,7 @@ export function ContestantWorkspace() {
           </div>
           <div><small>EVIDENCE FILES</small><strong>{uploadedCount} of {evidence.length}</strong><p>Required documents added</p></div>
           <div><small>PROFILE</small><strong>Complete</strong><p>Details verified</p></div>
-          <div><small>SUBMISSION DEADLINE</small><strong>31 May 2025</strong><p>16 days remaining</p></div>
+          <div><small>SUBMISSION DEADLINE</small><strong>31 May 2026</strong><p>16 days remaining</p></div>
         </section>
 
         <div className="contestant-grid">
@@ -271,7 +273,7 @@ export function ContestantWorkspace() {
               </div>
               <dl>
                 <div><dt>Institution</dt><dd>Astana IT University</dd></div>
-                <div><dt>Department</dt><dd>Computational Sciences</dd></div>
+                <div><dt>Department</dt><dd>Software Engineering</dd></div>
                 <div><dt>Application ID</dt><dd>AITU-250128</dd></div>
               </dl>
               <button className="profile-edit-button">Edit profile <Icon name="arrow" /></button>
@@ -358,7 +360,7 @@ export function ExpertReviewWorkspace() {
             <div className="pdf-preview">
               <div className="pdf-page">
                 <div className="pdf-logo">AITU</div>
-                <small>SCHOOL OF COMPUTATIONAL SCIENCES</small>
+                <small>SCHOOL OF SOFTWARE ENGINEERING</small>
                 <h3>DATA SCIENCE<br />STUDY GUIDE</h3>
                 <i />
                 <p>Undergraduate Programme<br />Academic Year 2023–2024</p>

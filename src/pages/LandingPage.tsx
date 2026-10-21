@@ -29,7 +29,11 @@ function ContestantPreview() {
   return (
     <div className="portal-preview contestant-preview" aria-hidden="true">
       <div className="preview-topbar">
-        <span className="preview-mark">A</span>
+          <img 
+          src="/logo-trophy.png" 
+          alt="AITU Teaching Excellence Awards" 
+          className="h-10 w-auto object-contain drop-shadow" 
+           />       
         <div className="preview-dots"><i /><i /><i /></div>
       </div>
       <div className="preview-body">
@@ -55,7 +59,11 @@ function ExpertPreview() {
   return (
     <div className="portal-preview expert-preview" aria-hidden="true">
       <div className="preview-sidebar">
-        <span className="preview-mark">A</span>
+        <img 
+          src="/logo-trophy.png" 
+          alt="AITU Teaching Excellence Awards" 
+          className="h-10 w-10 object-contain" 
+        />
         <i className="active" /><i /><i /><i />
       </div>
       <div className="expert-content">
@@ -78,7 +86,7 @@ function AdminPreview() {
     <div className="portal-preview admin-preview" aria-hidden="true">
       <div className="admin-head">
         <div><small>CONTROL CENTER</small><b>Awards overview</b></div>
-        <span>2025 EDITION</span>
+        <span>2026 EDITION</span>
       </div>
       <div className="metric-grid">
         <div><small>APPLICATIONS</small><b>1,284</b><em>+18.2%</em></div>
@@ -105,7 +113,7 @@ function AdminPreview() {
 const portals = [
   {
     number: '01',
-    title: 'Contestant Portal',
+    title: 'Participant Portal',
     description: 'Create your profile, submit supporting evidence, and track every stage of your award application.',
     action: 'Enter contestant portal',
     href: '/contestant',
@@ -135,10 +143,11 @@ export default function LandingPage() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#" aria-label="AITU Awards home">
-          <span className="brand-symbol">A</span>
-          <span className="brand-copy"><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
-        </a>
+        <img 
+          src="/logo-trophy.png" 
+          alt="AITU Teaching Excellence Awards" 
+          className="h-10 w-auto object-contain drop-shadow" 
+        />
 
         <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label="Primary navigation">
           {navigation.map(([label, href]) => <a key={label} href={href} onClick={() => setMenuOpen(false)}>{label}</a>)}
@@ -159,19 +168,12 @@ export default function LandingPage() {
         <div className="hero-glow" />
         <div className="hero-grid" />
         <div className="hero-content">
-          <div className="eyebrow"><span /> INTERNATIONAL ACADEMIC RECOGNITION</div>
+          <div className="eyebrow"><span /> INTERNAL ACADEMIC RECOGNITION</div>
           <h1>AITU TEACHING<br /><span>EXCELLENCE</span> AWARDS</h1>
-          <p>THE ULTIMATE RECOGNITION FOR ACADEMIC AND RESEARCH ACHIEVEMENTS</p>
           <div className="hero-actions">
             <a className="button button-primary" href="#nominations">Submit Application <ArrowIcon /></a>
             <a className="button button-secondary" href="#criteria">View Criteria</a>
           </div>
-        </div>
-        <div className="edition-mark" aria-hidden="true">
-          <span>EST.</span>
-          <b>2025</b>
-          <i />
-          <small>GLOBAL EDITION</small>
         </div>
         <a className="scroll-cue" href="#nominations"><span>DISCOVER THE AWARDS</span><i /></a>
       </section>
@@ -180,9 +182,8 @@ export default function LandingPage() {
         <div className="section-heading">
           <div>
             <div className="eyebrow dark"><span /> AWARDS PLATFORM</div>
-            <h2>One programme.<br />Three dedicated portals.</h2>
+            <h2>Three dedicated portals prototype</h2>
           </div>
-          <p>Purpose-built access for every participant in the AITU Teaching Excellence Awards.</p>
         </div>
 
         <div className="portal-grid">
@@ -201,14 +202,13 @@ export default function LandingPage() {
       </section>
 
       <section className="criteria-strip" id="criteria">
-        <p>Applications for the 2025 global edition are now open</p>
         <a href="#nominations">View nomination criteria <ArrowIcon /></a>
       </section>
 
       <footer id="contacts">
         <a className="brand footer-brand" href="#"><span className="brand-symbol">A</span><span className="brand-copy"><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span></a>
         <p>Recognising distinction in teaching, research, and academic leadership.</p>
-        <span>© 2025 AITU AWARDS</span>
+        <span>© 2026 AITU AWARDS</span>
       </footer>
     </main>
   )
