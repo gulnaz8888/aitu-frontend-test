@@ -253,8 +253,7 @@ h1 {
 }
 
 h1 span {
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, .68);
+  color: var(--gold);
 }
 
 .hero-content > p {
@@ -1054,6 +1053,51 @@ footer > span {
   .footer-brand .brand-copy {
     display: grid;
   }
+
+  .lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lang-switcher button {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, .6);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color .2s ease;
+}
+
+.lang-switcher button.active,
+.lang-switcher button:hover {
+  color: var(--gold);
+}
+
+.login-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid rgba(208, 173, 101, .4);
+  border-radius: 4px;
+  background: var(--navy-light);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  transition: .25s ease;
+}
+
+.login-button:hover {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #07101f;
+}
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2913,7 +2957,6 @@ footer > span {
   }
 }
 
-/* Contestant dashboard */
 .contestant-dashboard {
   min-height: 100vh;
   background: #f4f6f8;
