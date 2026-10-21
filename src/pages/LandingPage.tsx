@@ -30,10 +30,11 @@ function ContestantPreview() {
     <div className="portal-preview contestant-preview" aria-hidden="true">
       <div className="preview-topbar">
         <img 
-          src="/logo-trophy.png" 
+          src="/logo-trophy.png?v=2" 
           alt="AITU Teaching Excellence Awards" 
-          className="w-14 h-14 object-contain" 
-        />     
+          className="w-16 h-16 object-contain" 
+        />
+       
         <div className="preview-dots"><i /><i /><i /></div>
       </div>
       <div className="preview-body">
