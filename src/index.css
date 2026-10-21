@@ -46,7 +46,7 @@ button {
   left: 0;
   display: flex;
   width: 100%;
-  height: 94px;
+  height: 110px;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid rgba(255, 255, 255, .12);
@@ -253,7 +253,8 @@ h1 {
 }
 
 h1 span {
-  color: var(--gold);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, .68);
 }
 
 .hero-content > p {
@@ -298,14 +299,14 @@ h1 span {
 }
 
 .button-primary {
-  border-color: var(--gold);
-  background: var(--gold);
+  border-color: #ffffff;
+  background: #ffffff;
   color: #07101f;
 }
 
 .button-primary:hover {
-  border-color: var(--gold-light);
-  background: var(--gold-light);
+  border-color: #f0f0f0;
+  background: #f0f0f0;
   transform: translateY(-2px);
 }
 
