@@ -29,11 +29,11 @@ function ContestantPreview() {
   return (
     <div className="portal-preview contestant-preview" aria-hidden="true">
       <div className="preview-topbar">
-          <img 
+        <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="h-10 w-auto object-contain drop-shadow" 
-           />       
+          className="w-12 h-12 object-contain bg-transparent border-0" 
+        />      
         <div className="preview-dots"><i /><i /><i /></div>
       </div>
       <div className="preview-body">
@@ -62,7 +62,7 @@ function ExpertPreview() {
         <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="h-10 w-10 object-contain" 
+          className="w-12 h-12 object-contain bg-transparent border-0" 
         />
         <i className="active" /><i /><i /><i />
       </div>
@@ -146,7 +146,7 @@ export default function LandingPage() {
         <img 
           src="/logo-trophy.png" 
           alt="AITU Teaching Excellence Awards" 
-          className="h-10 w-auto object-contain drop-shadow" 
+          className="w-12 h-12 object-contain bg-transparent border-0" 
         />
 
         <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label="Primary navigation">
