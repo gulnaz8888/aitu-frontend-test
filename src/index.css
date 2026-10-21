@@ -19,6 +19,7 @@
 }
 
 html {
+  font-size: 17px;
   scroll-behavior: smooth;
 }
 
@@ -60,8 +61,8 @@ button {
 
 .brand-symbol {
   display: flex;
-  width: 56px;
-  height: 56px;
+  width: 60px;  
+  height: 60px;
   align-items: center;
   justify-content: center;
   border: none;
@@ -82,7 +83,7 @@ button {
 .brand-copy strong {
   letter-spacing: .14em;
   font-family: 'Manrope', sans-serif;
-  font-size: 18px;
+  font-size: 20px; 
   line-height: 1;
 }
 
@@ -1065,7 +1066,7 @@ footer > span {
   }
 }
 
-/* Workspace interface */
+
 .workspace-shell {
   min-height: 100vh;
   background: #f5f7f9;
@@ -1199,7 +1200,7 @@ footer > span {
 .workspace-layout {
   display: grid;
   min-height: calc(100vh - 74px);
-  grid-template-columns: 236px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
 }
 
 .workspace-sidebar {
