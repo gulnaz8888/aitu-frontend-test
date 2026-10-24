@@ -1,21 +1,15 @@
 import { useState } from 'react'
+import LanguageSwitcher from './LanguageSwitcher'
+import { useI18n, type Key } from './i18n'
+import { blockMax, nominations, stages } from './criteria'
 
-const navigation = [
-  ['ABOUT', '#about'],
-  ['NOMINATIONS', '#nominations'],
-  ['TIMELINE', '#timeline'],
-  ['WINNERS', '#winners'],
-  ['CONTACTS', '#contacts'],
+const navigation: [Key, string][] = [
+  ['navAbout', '#about'],
+  ['navNominations', '#nominations'],
+  ['navTimeline', '#timeline'],
+  ['navResults', '#results'],
+  ['navContacts', '#contacts'],
 ]
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.75" />
-      <path d="m16 16 4.25 4.25" />
-    </svg>
-  )
-}
 
 function ArrowIcon() {
   return (
@@ -26,30 +20,26 @@ function ArrowIcon() {
 }
 
 function ContestantPreview() {
+  const { t } = useI18n()
   return (
     <div className="portal-preview contestant-preview" aria-hidden="true">
       <div className="preview-topbar">
-        <img 
-          src="/logo-trophy.png?v=2" 
-          alt="AITU Teaching Excellence Awards" 
-          className="w-16 h-16 object-contain" 
-        />
-       
+        <img src="/logo-trophy.png" alt="" className="preview-logo" />
         <div className="preview-dots"><i /><i /><i /></div>
       </div>
       <div className="preview-body">
-        <div className="preview-kicker">APPLICATION OVERVIEW</div>
-        <div className="preview-heading">Welcome back, Applicant</div>
+        <div className="preview-kicker">{t('previewOverview')}</div>
+        <div className="preview-heading">{t('previewWelcome')}</div>
         <div className="progress-card">
-          <div className="progress-meta"><span>Application progress</span><strong>72%</strong></div>
+          <div className="progress-meta"><span>{t('previewProgress')}</span><strong>72%</strong></div>
           <div className="progress-track"><span /></div>
           <div className="progress-steps">
             <span className="complete">01</span><i /><span className="complete">02</span><i /><span>03</span>
           </div>
         </div>
         <div className="preview-row">
-          <div className="mini-card"><small>NEXT STEP</small><b>Research profile</b></div>
-          <div className="mini-card accent"><small>STATUS</small><b>In progress</b></div>
+          <div className="mini-card"><small>{t('previewNext')}</small><b>{t('previewNextValue')}</b></div>
+          <div className="mini-card accent"><small>{t('previewStatus')}</small><b>{t('previewStatusValue')}</b></div>
         </div>
       </div>
     </div>
@@ -57,25 +47,22 @@ function ContestantPreview() {
 }
 
 function ExpertPreview() {
+  const { t } = useI18n()
   return (
     <div className="portal-preview expert-preview" aria-hidden="true">
       <div className="preview-sidebar">
-        <img 
-          src="/logo-trophy.png" 
-          alt="AITU Teaching Excellence Awards" 
-          className="w-14 h-14 object-contain" 
-        /> 
+        <img src="/logo-trophy.png" alt="" className="preview-logo" />
         <i className="active" /><i /><i /><i />
       </div>
       <div className="expert-content">
         <div className="expert-head">
-          <div><small>EXPERT DASHBOARD</small><b>Assigned reviews</b></div>
-          <span>08</span>
+          <div><small>{t('previewExpert')}</small><b>{t('previewAssigned')}</b></div>
+          <span>04</span>
         </div>
         <div className="review-list">
-          <div><span className="avatar">AM</span><p><b>Academic Leadership</b><small>Nominee #2048</small></p><em>Review</em></div>
-          <div><span className="avatar gold">SK</span><p><b>Research Excellence</b><small>Nominee #1912</small></p><em>Review</em></div>
-          <div><span className="avatar blue">JT</span><p><b>Teaching Innovation</b><small>Nominee #1876</small></p><em>Review</em></div>
+          <div><span className="avatar">GY</span><p><b>II.2 · 22 / 30</b><small>AITU-260128</small></p><em>{t('previewReview')}</em></div>
+          <div><span className="avatar gold">AS</span><p><b>II.2 · 26 / 30</b><small>AITU-260127</small></p><em>{t('previewReview')}</em></div>
+          <div><span className="avatar blue">TN</span><p><b>II.1 · 9 / 14</b><small>AITU-260124</small></p><em>{t('previewReview')}</em></div>
         </div>
       </div>
     </div>
@@ -83,19 +70,19 @@ function ExpertPreview() {
 }
 
 function AdminPreview() {
+  const { t } = useI18n()
   return (
     <div className="portal-preview admin-preview" aria-hidden="true">
       <div className="admin-head">
-        <div><small>CONTROL CENTER</small><b>Awards overview</b></div>
-        <span>2026 EDITION</span>
+        <div><small>{t('previewControl')}</small><b>{t('previewOverviewTitle')}</b></div>
+        <span>2026</span>
       </div>
       <div className="metric-grid">
-        <div><small>APPLICATIONS</small><b>1,284</b><em>+18.2%</em></div>
-        <div><small>IN REVIEW</small><b>386</b><em>30.1%</em></div>
-        <div><small>FINALISTS</small><b>64</b><em>5.0%</em></div>
+        <div><small>{t('previewApplications')}</small><b>128</b><em>+14</em></div>
+        <div><small>{t('previewAdmitted')}</small><b>104</b><em>81.3%</em></div>
+        <div><small>{t('previewOverdue')}</small><b>8</b><em>6.3%</em></div>
       </div>
       <div className="chart">
-        <div className="chart-label"><span>Submission activity</span><small>JAN — MAY</small></div>
         <svg viewBox="0 0 420 90" preserveAspectRatio="none">
           <defs>
             <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
@@ -111,50 +98,39 @@ function AdminPreview() {
   )
 }
 
-const portals = [
-  {
-    number: '01',
-    title: 'Participant Portal',
-    description: 'Create your profile, submit supporting evidence, and track every stage of your award application.',
-    action: 'Enter contestant portal',
-    href: '/contestant',
-    preview: <ContestantPreview />,
-  },
-  {
-    number: '02',
-    title: 'Expert Review Portal',
-    description: 'A focused evaluation workspace for independent experts and distinguished academic reviewers.',
-    action: 'Enter review portal',
-    href: '/expert-review',
-    preview: <ExpertPreview />,
-  },
-  {
-    number: '03',
-    title: 'Administrator Control Panel',
-    description: 'Oversee nominations, coordinate review cycles, and manage the awards programme with clarity.',
-    action: 'Open control panel',
-    href: '/administrator',
-    preview: <AdminPreview />,
-  },
-]
-
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const { t, lang, date } = useI18n()
+
+  const portals = [
+    { number: '01', title: t('portalContestant'), description: t('portalContestantText'), action: t('enterContestant'), href: '/contestant', preview: <ContestantPreview /> },
+    { number: '02', title: t('portalExpert'), description: t('portalExpertText'), action: t('enterExpert'), href: '/expert-review', preview: <ExpertPreview /> },
+    { number: '03', title: t('portalAdmin'), description: t('portalAdminText'), action: t('enterAdmin'), href: '/administrator', preview: <AdminPreview /> },
+  ]
+
+  const blocks = [
+    { max: blockMax[1], name: t('block1') },
+    { max: blockMax[2], name: t('block2') },
+    { max: blockMax[3], name: t('block3') },
+  ]
 
   return (
     <main>
       <header className="site-header">
-        <img 
-          src="/logo-trophy.png" 
-          alt="AITU Teaching Excellence Awards" 
-          className="w-14 h-14 object-contain" 
-        /> 
-
+        <a className="site-logo" href="#" aria-label="AITU Teaching Excellence Awards">
+          <img src="/logo-trophy.png" alt="AITU Teaching Excellence Awards" />
+        </a>
         <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label="Primary navigation">
-          {navigation.map(([label, href]) => <a key={label} href={href} onClick={() => setMenuOpen(false)}>{label}</a>)}
-          <button className="search-button" aria-label="Search"><SearchIcon /></button>
+          <div className="nav-links">
+            {navigation.map(([key, href]) => (
+              <a key={key} href={href} onClick={() => setMenuOpen(false)}>{t(key)}</a>
+            ))}
+          </div>
+          <div className="nav-tools">
+            <LanguageSwitcher />
+            <a href="/login" className="login-button">{t('login')}</a>
+          </div>
         </nav>
-
         <button
           className={menuOpen ? 'menu-button is-open' : 'menu-button'}
           onClick={() => setMenuOpen(!menuOpen)}
@@ -165,28 +141,100 @@ export default function LandingPage() {
         </button>
       </header>
 
-      <section className="hero" id="about">
+      <section className="hero">
         <div className="hero-glow" />
         <div className="hero-grid" />
         <div className="hero-content">
-          <div className="eyebrow"><span /> INTERNAL ACADEMIC RECOGNITION</div>
-          <h1>AITU TEACHING<br /><span>EXCELLENCE</span> AWARDS</h1>
+          <div className="eyebrow"><span /> {t('eyebrow')}</div>
+          <h1>{t('heroLine1')}<br /><span>{t('heroHighlight')}</span> {t('heroLine2')}</h1>
           <div className="hero-actions">
-            <a className="button button-primary" href="#nominations">Submit Application <ArrowIcon /></a>
-            <a className="button button-secondary" href="#criteria">View Criteria</a>
+            <a className="button button-primary" href="/login">{t('apply')} <ArrowIcon /></a>
+            <a className="button button-secondary" href="#nominations">{t('viewCriteria')}</a>
           </div>
         </div>
-        <a className="scroll-cue" href="#nominations"><span>DISCOVER THE AWARDS</span><i /></a>
+        <a className="scroll-cue" href="#about"><span>{t('discover')}</span><i /></a>
       </section>
 
-      <section className="portals" id="nominations">
+      <section className="info-section" id="about">
         <div className="section-heading">
           <div>
-            <div className="eyebrow dark"><span /> AWARDS PLATFORM</div>
-            <h2>Three dedicated portals prototype</h2>
+            <div className="eyebrow dark"><span /> {t('aboutEyebrow')}</div>
+            <h2>{t('aboutTitle')}</h2>
+          </div>
+          <p>{t('aboutText')}</p>
+        </div>
+        <div className="stat-row">
+          <div><strong>100</strong><span>{t('statPoints')}</span></div>
+          <div><strong>3</strong><span>{t('statBlocks')}</span></div>
+          <div><strong>4</strong><span>{t('statNominations')}</span></div>
+        </div>
+        <div className="block-row">
+          {blocks.map((block, index) => (
+            <div key={block.name}><small>{['I', 'II', 'III'][index]}</small><b>{block.name}</b><em>{block.max}</em></div>
+          ))}
+        </div>
+      </section>
+
+      <section className="info-section alt" id="nominations">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow dark"><span /> {t('nomEyebrow')}</div>
+            <h2>{t('nomTitle')}</h2>
           </div>
         </div>
+        <div className="nomination-grid">
+          {nominations.map((nomination, index) => (
+            <article className="nomination-card" key={nomination.id}>
+              <span className="card-number">0{index + 1}</span>
+              <h3>{nomination.name}</h3>
+              <p>{nomination.conditions[lang]}</p>
+              <div className="nomination-meta">
+                {nomination.applicable
+                  ? <><small>{t('passMark')}</small><b>{nomination.pass} {t('pointsShort')}</b></>
+                  : <b>{t('noApplication')}</b>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
+      <section className="info-section" id="timeline">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow dark"><span /> {t('timeEyebrow')}</div>
+            <h2>{t('timeTitle')}</h2>
+          </div>
+        </div>
+        <ol className="timeline">
+          {stages.map((stage, index) => (
+            <li key={stage.key}>
+              <i />
+              <small>0{index + 1}</small>
+              <b>{t(stage.key as Key)}</b>
+              <span>{stage.from === stage.to ? date(stage.from) : `${date(stage.from)} — ${date(stage.to)}`}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="info-section alt" id="results">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow dark"><span /> {t('resultsEyebrow')}</div>
+            <h2>{t('resultsTitle')}</h2>
+          </div>
+          <p>{t('resultsText')}</p>
+        </div>
+      </section>
+
+      <section className="portals" id="platform">
+        <div className="section-heading">
+          <div>
+            <div className="eyebrow dark"><span /> {t('portalsEyebrow')}</div>
+            <h2>{t('portalsTitle')}</h2>
+          </div>
+          <p>{t('portalsText')}</p>
+        </div>
         <div className="portal-grid">
           {portals.map((portal) => (
             <article className="portal-card" key={portal.number}>
@@ -202,14 +250,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="criteria-strip" id="criteria">
-        <a href="#nominations">View nomination criteria <ArrowIcon /></a>
-      </section>
-
       <footer id="contacts">
-        <a className="brand footer-brand" href="#"><span className="brand-symbol">A</span><span className="brand-copy"><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span></a>
-        <p>Recognising distinction in teaching, research, and academic leadership.</p>
-        <span>© 2026 AITU AWARDS</span>
+        <a className="footer-logo" href="#"><img src="/logo-trophy.png" alt="AITU Awards" /></a>
+        <p>{t('footerText')}</p>
+        <span>{t('footerRights')} · <a href="mailto:awards@aitu.edu.kz">awards@aitu.edu.kz</a></span>
       </footer>
     </main>
   )

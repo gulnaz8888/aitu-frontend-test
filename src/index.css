@@ -5834,3 +5834,223 @@ footer a[href^='mailto'] {
     height: 40px;
   }
 }
+
+.info-section {
+  background: #ffffff;
+  color: #152237;
+}
+
+.info-section.alt {
+  background: #f4f6f8;
+}
+
+.info-section .section-heading h2,
+.portals .section-heading h2 {
+  color: #0f1d33;
+}
+
+.info-section .section-heading > p,
+.portals .section-heading > p {
+  color: #5f6c7b;
+}
+
+.info-section .eyebrow.dark,
+.portals .eyebrow.dark {
+  color: #9a7228;
+}
+
+.stat-row {
+  border-top-color: #dfe4e9;
+}
+
+.stat-row strong {
+  color: #0f1d33;
+}
+
+.stat-row span {
+  color: #6b7787;
+}
+
+.block-row {
+  background: #dfe4e9;
+}
+
+.block-row > div {
+  background: #ffffff;
+}
+
+.block-row small {
+  color: #9a7228;
+}
+
+.block-row b {
+  color: #0f1d33;
+}
+
+.block-row em {
+  color: #6b7787;
+}
+
+.nomination-card {
+  border-color: #dfe4e9;
+  background: #ffffff;
+}
+
+.nomination-card h3 {
+  color: #0f1d33;
+}
+
+.nomination-card p {
+  color: #5f6c7b;
+}
+
+.nomination-meta {
+  border-top-color: #e6eaee;
+}
+
+.nomination-meta small {
+  color: #7a8796;
+}
+
+.nomination-meta b {
+  color: #8a6a1f;
+}
+
+.timeline li {
+  border-top-color: #cfd7df;
+}
+
+.timeline small {
+  color: #9a7228;
+}
+
+.timeline b {
+  color: #0f1d33;
+}
+
+.timeline span {
+  color: #6b7787;
+}
+
+.portals {
+  background: #ffffff;
+  color: #152237;
+}
+
+/* Страница входа */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: #ffffff;
+  color: #152237;
+}
+
+.login-header {
+  display: flex;
+  height: 82px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(20px, 5vw, 80px);
+  background: var(--navy);
+}
+
+.login-header img {
+  width: auto;
+  height: 52px;
+  object-fit: contain;
+}
+
+.login-main {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  padding: 48px 20px;
+}
+
+.login-card {
+  display: grid;
+  width: min(100%, 440px);
+  gap: 14px;
+  border: 1px solid #dce3e8;
+  border-top: 3px solid #c8a457;
+  padding: 40px 36px 32px;
+  background: #ffffff;
+}
+
+.login-card h1 {
+  margin: 0;
+  color: #0f1d33;
+  font-family: 'Manrope', 'Inter', sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.login-card > p {
+  margin: 0 0 10px;
+  color: #5f6c7b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.login-provider {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid #cdd5dc;
+  background: #ffffff;
+  color: #152237;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.login-provider svg {
+  width: 20px;
+  height: 20px;
+}
+
+.login-provider:hover {
+  border-color: #173d5f;
+  background: #f3f6fa;
+}
+
+.login-provider.microsoft {
+  border-color: #173d5f;
+  background: #173d5f;
+  color: #ffffff;
+}
+
+.login-provider.microsoft:hover {
+  background: #0f2f4d;
+}
+
+.login-provider.microsoft svg {
+  padding: 2px;
+  background: #ffffff;
+}
+
+.login-card > small {
+  margin-top: 6px;
+  color: #8a95a2;
+  font-size: 12px;
+  text-align: center;
+}
+
+.login-back {
+  color: #45637d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.login-back:hover {
+  text-decoration: underline;
+}

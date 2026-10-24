@@ -1,5 +1,19 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { Fragment, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
+import LanguageSwitcher from './LanguageSwitcher'
+import { useI18n, type Key } from './i18n'
+import {
+  applicants,
+  blockMax,
+  claims,
+  criteria,
+  edition,
+  nominations,
+  sourceLabel,
+  stages,
+  statusLabel,
+  type Status,
+} from './criteria'
 
 type IconName =
   | 'arrow'
@@ -38,49 +52,68 @@ function Icon({ name }: { name: IconName }) {
   return <svg className="ui-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>
 }
 
+function initials(name: string) {
+  return name.split(' ').map((part) => part[0]).slice(0, 2).join('')
+}
+
+function statusTone(status: Status): 'success' | 'warning' | 'error' | 'navy' {
+  if (status === 'admitted' || status === 'reviewDone' || status === 'commission' || status === 'finalized') return 'success'
+  if (status === 'returned') return 'error'
+  if (status === 'draft') return 'navy'
+  return 'warning'
+}
+
+function StatusBadge({ tone, children }: { tone: 'success' | 'warning' | 'error' | 'navy'; children: ReactNode }) {
+  return <span className={`status-badge ${tone}`}><i />{children}</span>
+}
+
+function WorkspaceHeader({ name, role, nav }: { name: string; role: string; nav?: ReactNode }) {
+  const { t } = useI18n()
+  return (
+    <header className="workspace-header">
+      <Link className="workspace-brand" to="/" aria-label="AITU Teaching Excellence Awards">
+        <img className="workspace-logo" src="/logo-trophy.png" alt="AITU Teaching Excellence Awards" />
+      </Link>
+      {nav}
+      <div className="workspace-header-actions">
+        <LanguageSwitcher />
+        <button className="header-icon-button" aria-label={t('notifications')}><Icon name="bell" /><i /></button>
+        <div className="user-chip">
+          <span>{initials(name)}</span>
+          <div><strong>{name}</strong><small>{role}</small></div>
+          <Icon name="chevron" />
+        </div>
+      </div>
+    </header>
+  )
+}
+
 function WorkspaceShell({
   role,
   name,
-  active,
+  links,
   children,
 }: {
   role: string
   name: string
-  active: string
+  links: { href: string; label: string; icon: IconName; active?: boolean }[]
   children: ReactNode
 }) {
+  const { t } = useI18n()
   return (
     <div className="workspace-shell">
-      <header className="workspace-header">
-        <Link className="workspace-brand" to="/">
-          <img 
-            src="/logo-trophy.png" 
-            alt="AITU Teaching Excellence Awards" 
-            className="w-14 h-14 object-contain" 
-          /> 
-          <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
-        </Link>
-        <div className="workspace-header-actions">
-          <button className="header-icon-button" aria-label="Notifications"><Icon name="bell" /><i /></button>
-          <div className="user-chip">
-            <span>{name.split(' ').map((part) => part[0]).slice(0, 2).join('')}</span>
-            <div><strong>{name}</strong><small>{role}</small></div>
-            <Icon name="chevron" />
-          </div>
-        </div>
-      </header>
+      <WorkspaceHeader name={name} role={role} />
       <div className="workspace-layout">
         <aside className="workspace-sidebar">
-          <div className="sidebar-label">WORKSPACE</div>
+          <div className="sidebar-label">{t('workspace')}</div>
           <nav>
-            <a className={active === 'overview' ? 'active' : ''} href="#overview"><Icon name="grid" /> Overview</a>
-            <a className={active === 'application' ? 'active' : ''} href="#application"><Icon name="document" /> {role === 'Administrator' ? 'Applications' : role === 'Expert Reviewer' ? 'Assigned Reviews' : 'My Application'}</a>
-            <a href="#documents"><Icon name="upload" /> {role === 'Administrator' ? 'Documents' : 'Evidence Files'}</a>
-            {role === 'Administrator' && <a href="#reviewers"><Icon name="users" /> Reviewers</a>}
+            {links.map((link) => (
+              <a key={link.href} className={link.active ? 'active' : ''} href={link.href}><Icon name={link.icon} /> {link.label}</a>
+            ))}
           </nav>
           <div className="sidebar-bottom">
-            <div className="edition-panel"><small>CURRENT EDITION</small><strong>2026 Global Awards</strong><span>Applications open</span></div>
-            <Link to="/"><Icon name="logout" /> Return to website</Link>
+            <div className="edition-panel"><small>{t('edition')}</small><strong>{t('editionName')}</strong><span>{t('applicationsOpen')}</span></div>
+            <Link to="/"><Icon name="logout" /> {t('returnToWebsite')}</Link>
           </div>
         </aside>
         <div className="workspace-main">{children}</div>
@@ -102,204 +135,270 @@ function PageIntro({ eyebrow, title, text, action }: { eyebrow: string; title: s
   )
 }
 
-function StatusBadge({ tone, children }: { tone: 'success' | 'warning' | 'error' | 'navy'; children: ReactNode }) {
-  return <span className={`status-badge ${tone}`}><i />{children}</span>
-}
+type Row = { claimed: number | null; files: { name: string; meta: string }[] }
 
-type EvidenceItem = {
-  id: string
-  block: string
-  title: string
-  guidance: string
-  points: number
-  file?: string
-  fileMeta?: string
-}
+const seed = (claimed: number | null, ...names: string[]): Row => ({
+  claimed,
+  files: names.map((name) => ({ name, meta: 'PDF · 2.4 MB · 12 Nov 2026' })),
+})
 
-const initialEvidence: EvidenceItem[] = [
-  { id: '1.1', block: 'Block I', title: 'Academic qualifications', guidance: 'Degree certificates and professional credentials', points: 3, file: 'academic_qualifications.pdf', fileMeta: 'PDF · 2.4 MB · 14 May 2025' },
-  { id: '1.2', block: 'Block I', title: 'Teaching experience', guidance: 'Verified teaching record and appointment history', points: 5, file: 'teaching_experience_record.pdf', fileMeta: 'PDF · 1.8 MB · 14 May 2025' },
-  { id: '2.1', block: 'Block II', title: 'Course and curriculum design', guidance: 'Curricula, syllabi, or course development evidence', points: 5, file: 'curriculum_design_portfolio.pdf', fileMeta: 'PDF · 6.1 MB · 13 May 2025' },
-  { id: '2.2', block: 'Block II', title: 'Innovative teaching practice', guidance: 'Case study with evidence of measurable outcomes', points: 5, file: 'innovation_case_study.pdf', fileMeta: 'PDF · 4.7 MB · 13 May 2025' },
-  { id: '2.3', block: 'Block II', title: 'Published study guides', guidance: 'Published learning materials with clear attribution', points: 3, file: 'study_guide_data_science_2023.pdf', fileMeta: 'PDF · 4.8 MB · 14 May 2025' },
-  { id: '3.1', block: 'Block III', title: 'Research and scholarly impact', guidance: 'Publication record, citations, and academic service', points: 8 },
-]
+const initialRows: Record<string, Row> = {
+  'I.1': seed(5, 'phd_diploma.pdf'),
+  'I.2': seed(3, 'associate_professor_certificate.pdf'),
+  'I.5': seed(0),
+  'I.6': seed(6, 'erasmus_mobility_2025.pdf'),
+  'I.7': seed(5, 'professional_development_2024.pdf'),
+  'II.1': seed(10, 'mooc_course_certificate.pdf'),
+  'II.2': seed(22, 'study_guide_data_science_2023.pdf', 'syllabus_machine_learning.pdf'),
+  'III.1': seed(null),
+  'III.2': seed(4, 'conference_talk_programme.pdf'),
+}
 
 export function ContestantWorkspace() {
-  const [evidence, setEvidence] = useState(initialEvidence)
+  const { t, lang, date } = useI18n()
+  const [rows, setRows] = useState<Record<string, Row>>(initialRows)
+  const [nomination, setNomination] = useState('professor')
+  const [declaration, setDeclaration] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [savedAt, setSavedAt] = useState('10:42')
   const [activeUpload, setActiveUpload] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const uploadedCount = evidence.filter((item) => item.file).length
 
-  const requestFile = (criterionId: string) => {
-    setActiveUpload(criterionId)
+  const own = criteria.filter((item) => item.source === 'nominee')
+  const rowOf = (id: string): Row => rows[id] ?? { claimed: null, files: [] }
+  const isReady = (id: string) => {
+    const row = rowOf(id)
+    return row.claimed !== null && (row.claimed === 0 || row.files.length > 0)
+  }
+  const readyCount = own.filter((item) => isReady(item.id)).length
+  const allReady = readyCount === own.length
+  const canSubmit = allReady && declaration && !submitted
+  const daysLeft = Math.max(0, Math.ceil((new Date(edition.deadline).getTime() - Date.now()) / 86400000))
+  const blockTotal = (block: 1 | 2 | 3) => own.filter((item) => item.block === block).reduce((sum, item) => sum + (rowOf(item.id).claimed ?? 0), 0)
+  const total = blockTotal(1) + blockTotal(2) + blockTotal(3)
+  const status: Status = submitted ? 'submitted' : 'draft'
+
+  const update = (id: string, patch: Partial<Row>) => setRows((current) => ({ ...current, [id]: { ...rowOf(id), ...patch } }))
+
+  const setClaimed = (id: string, max: number, value: string) => {
+    if (value.trim() === '') return update(id, { claimed: null })
+    const number = Math.round(Number(value))
+    if (Number.isNaN(number)) return
+    update(id, { claimed: Math.min(max, Math.max(0, number)) })
+  }
+
+  const requestFile = (id: string) => {
+    setActiveUpload(id)
     fileInputRef.current?.click()
   }
 
   const handleFile = (file?: File) => {
     if (!file || !activeUpload) return
-    const size = file.size < 1024 * 1024
-      ? `${Math.max(1, Math.round(file.size / 1024))} KB`
-      : `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-    setEvidence((items) => items.map((item) => (
-      item.id === activeUpload
-        ? { ...item, file: file.name, fileMeta: `${file.name.split('.').pop()?.toUpperCase() || 'FILE'} · ${size} · Uploaded today` }
-        : item
-    )))
+    const size = file.size < 1024 * 1024 ? `${Math.max(1, Math.round(file.size / 1024))} KB` : `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+    const meta = `${file.name.split('.').pop()?.toUpperCase() || 'FILE'} · ${size} · ${t('uploadedToday')}`
+    update(activeUpload, { files: [...rowOf(activeUpload).files, { name: file.name, meta }] })
     setActiveUpload(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const removeFile = (criterionId: string) => {
-    setEvidence((items) => items.map((item) => (
-      item.id === criterionId ? { ...item, file: undefined, fileMeta: undefined } : item
-    )))
-  }
+  const removeFile = (id: string, index: number) => update(id, { files: rowOf(id).files.filter((_, position) => position !== index) })
+
+  const save = () => setSavedAt(new Date().toLocaleTimeString(lang === 'kk' ? 'kk-KZ' : lang === 'ru' ? 'ru-RU' : 'en-GB', { hour: '2-digit', minute: '2-digit' }))
+
+  const checklist = [
+    { label: t('chkNomination'), done: Boolean(nomination) },
+    { label: t('chkCriteria'), done: allReady },
+    { label: t('chkDeclaration'), done: declaration },
+  ]
 
   return (
     <div className="contestant-dashboard">
-      <header className="workspace-header">
-        <Link className="workspace-brand" to="/">
-          <img 
-            src="/logo-trophy.png" 
-            alt="AITU Teaching Excellence Awards" 
-            className="w-14 h-14 object-contain" 
-          /> 
-          <span><strong>AITU</strong><small>EXCELLENCE AWARDS</small></span>
-        </Link>
-        <nav className="contestant-nav" aria-label="Contestant workspace">
-          <a href="#overview">Overview</a>
-          <a className="active" href="#evidence">Evidence</a>
-          <a href="#profile">Profile</a>
-        </nav>
-        <div className="workspace-header-actions">
-          <button className="header-icon-button" aria-label="Notifications"><Icon name="bell" /><i /></button>
-          <div className="user-chip">
-            <span>GY</span>
-            <div><strong>Gulnaz Yeskermes</strong><small>Contestant</small></div>
-            <Icon name="chevron" />
-          </div>
-        </div>
-      </header>
+      <WorkspaceHeader
+        name="Gulnaz Yeskermes"
+        role={t('roleContestant')}
+        nav={
+          <nav className="contestant-nav" aria-label="Contestant workspace">
+            <a href="#overview">{t('navOverview')}</a>
+            <a className="active" href="#evidence">{t('navEvidence')}</a>
+            <a href="#profile">{t('navProfile')}</a>
+          </nav>
+        }
+      />
 
       <main className="contestant-main">
         <section className="contestant-intro" id="overview">
-          <div>
-            <h1>Participant Portal</h1>
-          </div>
+          <div><h1>{t('portalTitle')}</h1></div>
           <div className="contestant-intro-actions">
-            <span>Last saved today at 10:42</span>
-            <button className="outline-action">Save changes</button>
+            <span>{t('today', { t: savedAt })}</span>
+            <button className="outline-action" onClick={save}>{t('saveChanges')}</button>
           </div>
         </section>
 
         <section className="status-overview" aria-label="Application status">
           <div className="status-primary">
             <span className="status-icon warning"><Icon name="clock" /></span>
-            <div><small>APPLICATION STATUS</small><strong>In progress</strong><p>One required criterion remains</p></div>
+            <div><small>{t('statusApplication')}</small><strong>{statusLabel[status][lang]}</strong><p>{allReady ? t('allRequiredDone') : t('oneRequired')}</p></div>
           </div>
-          <div><small>EVIDENCE FILES</small><strong>{uploadedCount} of {evidence.length}</strong><p>Required documents added</p></div>
-          <div><small>PROFILE</small><strong>Complete</strong><p>Details verified</p></div>
-          <div><small>SUBMISSION DEADLINE</small><strong>31 May 2026</strong><p>16 days remaining</p></div>
+          <div><small>{t('statusFilled')}</small><strong>{readyCount} / {own.length}</strong><p>{t('ofReady', { a: readyCount, b: own.length })}</p></div>
+          <div><small>{t('profileLabel')}</small><strong>{t('profileComplete')}</strong><p>{t('profileVerified')}</p></div>
+          <div><small>{t('deadline')}</small><strong>{date(edition.deadline)}</strong><p>{t('daysLeft', { n: daysLeft })}</p></div>
         </section>
 
         <div className="contestant-grid">
-          <section className="evidence-manager" id="evidence">
-            <div className="evidence-heading">
-              <div>
-                <span>ASSESSMENT EVIDENCE</span>
-                <h2>Required criteria</h2>
-                <p>Upload one clear document for every criterion. Files remain editable until submission.</p>
+          <div className="contestant-column">
+            <section className="evidence-manager nomination-picker">
+              <div className="evidence-heading">
+                <div>
+                  <span>{t('step1')}</span>
+                  <h2>{t('chooseNomination')}</h2>
+                  <p>{t('nominationHint')}</p>
+                </div>
               </div>
-              <StatusBadge tone={uploadedCount === evidence.length ? 'success' : 'warning'}>
-                {uploadedCount} of {evidence.length} ready
-              </StatusBadge>
-            </div>
+              <div className="nomination-options" role="radiogroup" aria-label={t('chooseNomination')}>
+                {nominations.filter((item) => item.applicable).map((item) => (
+                  <button
+                    key={item.id}
+                    role="radio"
+                    aria-checked={nomination === item.id}
+                    className={nomination === item.id ? 'selected' : ''}
+                    disabled={submitted}
+                    onClick={() => setNomination(item.id)}
+                  >
+                    <strong>{item.name}</strong>
+                    <small>{item.conditions[lang]}</small>
+                    <em>{t('passMark')}: {item.pass}</em>
+                  </button>
+                ))}
+              </div>
+            </section>
 
-            <input
-              ref={fileInputRef}
-              className="visually-hidden"
-              type="file"
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-              onChange={(event) => handleFile(event.target.files?.[0])}
-            />
+            <section className="evidence-manager" id="evidence">
+              <div className="evidence-heading">
+                <div>
+                  <span>{t('step2')}</span>
+                  <h2>{t('criteriaTitle')}</h2>
+                  <p>{t('criteriaText')}</p>
+                </div>
+                <StatusBadge tone={allReady ? 'success' : 'warning'}>{t('ofReady', { a: readyCount, b: own.length })}</StatusBadge>
+              </div>
 
-            <div className="criteria-list">
-              {evidence.map((item, index) => {
-                const showBlock = index === 0 || evidence[index - 1].block !== item.block
-                return (
-                  <div className="criterion-group" key={item.id}>
-                    {showBlock && (
-                      <div className="criterion-group-label">
-                        <span>{item.block}</span>
-                        <i />
-                      </div>
-                    )}
-                    <article className={`evidence-row ${item.file ? 'has-file' : 'needs-file'}`}>
-                      <div className="criterion-number">{item.id}</div>
-                      <div className="criterion-description">
-                        <div><h3>{item.title}</h3><span>Up to {item.points} points</span></div>
-                        <p>{item.guidance}</p>
-                      </div>
-                      {item.file ? (
-                        <div className="evidence-file">
-                          <span className="evidence-file-icon"><Icon name="document" /></span>
-                          <div><strong>{item.file}</strong><small>{item.fileMeta}</small></div>
+              <input
+                ref={fileInputRef}
+                className="visually-hidden"
+                type="file"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                onChange={(event) => handleFile(event.target.files?.[0])}
+              />
+
+              <div className="criteria-list">
+                {criteria.map((item, index) => {
+                  const showBlock = index === 0 || criteria[index - 1].block !== item.block
+                  const row = rowOf(item.id)
+                  const verified = item.source !== 'nominee'
+                  const ready = verified || isReady(item.id)
+                  return (
+                    <div className="criterion-group" key={item.id}>
+                      {showBlock && (
+                        <div className="criterion-group-label">
+                          <span>{t(`block${item.block}` as Key)} · {blockTotal(item.block)} / {blockMax[item.block]}</span>
+                          <i />
                         </div>
-                      ) : (
-                        <button className="upload-file-button" onClick={() => requestFile(item.id)}>
-                          <Icon name="upload" />
-                          <span><strong>Upload evidence</strong><small>PDF, DOCX, JPG or PNG · Max 20 MB</small></span>
-                        </button>
                       )}
-                      <div className="evidence-row-actions">
-                        {item.file ? (
-                          <>
-                            <button onClick={() => requestFile(item.id)}>Replace</button>
-                            <button className="remove-file" aria-label={`Remove ${item.file}`} onClick={() => removeFile(item.id)}><Icon name="trash" /></button>
-                          </>
+                      <article className={`crit-row ${ready ? 'has-file' : 'needs-file'}`}>
+                        <div className="criterion-number">{item.id}</div>
+                        <div className="criterion-description">
+                          <div><h3>{item.title[lang]}</h3><span>{t('maxShort')} {item.max}</span></div>
+                          <p>{t('verifiedBy')}: {sourceLabel[item.source][lang]}</p>
+                        </div>
+                        {verified ? (
+                          <div className="crit-verified"><Icon name="clock" /><span>{t('awaitingVerification')}</span></div>
                         ) : (
-                          <StatusBadge tone="warning">Required</StatusBadge>
+                          <>
+                            <label className="claimed-field">
+                              <small>{t('claimed')}</small>
+                              <span>
+                                <input
+                                  type="number"
+                                  inputMode="numeric"
+                                  min={0}
+                                  max={item.max}
+                                  disabled={submitted}
+                                  value={row.claimed ?? ''}
+                                  onChange={(event) => setClaimed(item.id, item.max, event.target.value)}
+                                />
+                                <em>/ {item.max}</em>
+                              </span>
+                            </label>
+                            <div className="crit-files">
+                              {row.files.map((file, position) => (
+                                <div className="crit-file" key={`${file.name}-${position}`}>
+                                  <Icon name="document" />
+                                  <span><strong>{file.name}</strong><small>{file.meta}</small></span>
+                                  {!submitted && <button aria-label={`${t('remove')} ${file.name}`} onClick={() => removeFile(item.id, position)}><Icon name="trash" /></button>}
+                                </div>
+                              ))}
+                              {!submitted && (
+                                <button className="crit-add" onClick={() => requestFile(item.id)}>
+                                  <Icon name="upload" />
+                                  <span><strong>{t('addFile')}</strong><small>{t('fileLimits')}</small></span>
+                                </button>
+                              )}
+                            </div>
+                          </>
                         )}
-                      </div>
-                    </article>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
+                      </article>
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
+          </div>
 
           <aside className="contestant-aside">
             <section className="profile-card" id="profile">
               <div className="profile-card-heading">
                 <span>GY</span>
-                <div><h2>Gulnaz Yeskermes</h2><p>Associate Professor</p></div>
+                <div><h2>Gulnaz Yeskermes</h2><p>{t('position')}</p></div>
               </div>
               <dl>
-                <div><dt>Institution</dt><dd>Astana IT University</dd></div>
-                <div><dt>Department</dt><dd>Software Engineering</dd></div>
-                <div><dt>Application ID</dt><dd>AITU-250128</dd></div>
+                <div><dt>{t('institution')}</dt><dd>Astana IT University</dd></div>
+                <div><dt>{t('school')}</dt><dd>Software Engineering</dd></div>
+                <div><dt>{t('applicationId')}</dt><dd>AITU-260128</dd></div>
               </dl>
-              <button className="profile-edit-button">Edit profile <Icon name="arrow" /></button>
+              <button className="profile-edit-button">{t('editProfile')} <Icon name="arrow" /></button>
+            </section>
+
+            <section className="score-card">
+              <span>{t('prelim')}</span>
+              <strong>{total}<small> / 100</small></strong>
+              <ul>
+                {([1, 2, 3] as const).map((block) => (
+                  <li key={block}><span>{t('blockLine', { n: block })}</span><b>{blockTotal(block)} / {blockMax[block]}</b></li>
+                ))}
+              </ul>
+              <p>{t('prelimNote')}</p>
             </section>
 
             <section className="submission-card">
-              <span>SUBMISSION</span>
-              <h2>Almost ready</h2>
-              <p>Add the remaining evidence file, review your declaration, and submit your application.</p>
+              <span>{t('submission')}</span>
+              <h2>{canSubmit || submitted ? t('readyToSubmit') : t('almostReady')}</h2>
+              <p>{t('submitText')}</p>
               <ul>
-                <li className="done"><Icon name="check" /> Profile information</li>
-                <li className="done"><Icon name="check" /> Five evidence files</li>
-                <li><Icon name="clock" /> One evidence file</li>
-                <li><Icon name="clock" /> Declaration and consent</li>
+                {checklist.map((entry) => (
+                  <li key={entry.label} className={entry.done ? 'done' : ''}><Icon name={entry.done ? 'check' : 'clock'} /> {entry.label}</li>
+                ))}
               </ul>
-              <button className="primary-action" disabled>Submit application <Icon name="arrow" /></button>
-              <small>Submission unlocks when all requirements are complete.</small>
+              <label className="declaration">
+                <input type="checkbox" checked={declaration} disabled={submitted} onChange={(event) => setDeclaration(event.target.checked)} />
+                <span>{t('declaration')}</span>
+              </label>
+              <button className="primary-action" disabled={!canSubmit} onClick={() => setSubmitted(true)}>{t('submit')} <Icon name="arrow" /></button>
+              <small>{submitted ? t('submittedMsg') : t('submitHint')}</small>
             </section>
 
             <section className="contestant-help">
               <Icon name="info" />
-              <div><strong>Evidence guidelines</strong><p>Use concise, relevant documents that clearly show your contribution.</p><a href="mailto:awards@aitu.edu.kz">Contact support</a></div>
+              <div><strong>{t('guidelines')}</strong><p>{t('guidelinesText')}</p><a href="mailto:awards@aitu.edu.kz">{t('contactSupport')}</a></div>
             </section>
           </aside>
         </div>
@@ -308,40 +407,122 @@ export function ContestantWorkspace() {
   )
 }
 
-const assignedApplications = [
-  { teacher: 'Teacher 1: Gulnaz Yeskermes', block: 'Block II', progress: '5 / 6', status: 'Ready for Review' },
-  { teacher: 'Teacher 2: Aigerim Sarsembayeva', block: 'Block I', progress: '4 / 4', status: 'Ready for Review' },
-  { teacher: 'Teacher 3: Daniyar Akhmetov', block: 'Block III', progress: '3 / 5', status: 'Awaiting Files' },
+type Decision = 'confirmed' | 'partial' | 'rejected' | 'clarify'
+type Evaluation = { decision: Decision | null; score: string; comment: string; deadline: string; saved: boolean; locked: boolean }
+
+const emptyEvaluation: Evaluation = { decision: null, score: '', comment: '', deadline: '2026-12-15', saved: false, locked: false }
+const decisions: { id: Decision; label: Key }[] = [
+  { id: 'confirmed', label: 'decConfirmed' },
+  { id: 'partial', label: 'decPartial' },
+  { id: 'rejected', label: 'decRejected' },
+  { id: 'clarify', label: 'decClarify' },
 ]
 
+const block2 = criteria.filter((item) => item.block === 2)
+const queue = applicants.filter((item) => item.expert === 'Dr. Sarah Mitchell')
+
+const initialEvaluations: Record<string, Evaluation> = {
+  'AITU-260128:II.1': { decision: 'confirmed', score: '10', comment: '', deadline: '2026-12-15', saved: true, locked: false },
+  'AITU-260127:II.1': { decision: 'confirmed', score: '12', comment: '', deadline: '2026-12-15', saved: true, locked: true },
+  'AITU-260127:II.2': { decision: 'partial', score: '24', comment: 'Two items lack an attribution page.', deadline: '2026-12-15', saved: true, locked: true },
+  'AITU-260127:II.3': { decision: 'confirmed', score: '2', comment: '', deadline: '2026-12-15', saved: true, locked: true },
+  'AITU-260127:II.4': { decision: 'confirmed', score: '3', comment: '', deadline: '2026-12-15', saved: true, locked: true },
+  'AITU-260124:II.1': { decision: 'confirmed', score: '9', comment: '', deadline: '2026-12-15', saved: true, locked: false },
+  'AITU-260124:II.2': { decision: 'clarify', score: '', comment: 'Please provide the publication page with the year.', deadline: '2026-12-15', saved: true, locked: false },
+}
+
 export function ExpertReviewWorkspace() {
-  const [selectedTeacher, setSelectedTeacher] = useState(assignedApplications[0].teacher)
+  const { t, lang, date } = useI18n()
+  const [selected, setSelected] = useState(queue[0].id)
+  const [criterionId, setCriterionId] = useState('II.2')
+  const [evaluations, setEvaluations] = useState(initialEvaluations)
+  const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null)
+
+  const applicant = queue.find((item) => item.id === selected) ?? queue[0]
+  const criterion = block2.find((item) => item.id === criterionId) ?? block2[0]
+  const claimed = claims[applicant.id]?.[criterion.id] ?? 0
+  const key = `${applicant.id}:${criterion.id}`
+  const evaluation = evaluations[key] ?? emptyEvaluation
+
+  const progress = (id: string) => block2.filter((item) => evaluations[`${id}:${item.id}`]?.saved).length
+  const lockedAll = (id: string) => block2.every((item) => evaluations[`${id}:${item.id}`]?.locked)
+  const statusOf = (id: string): Status => {
+    if (lockedAll(id)) return 'reviewDone'
+    if (block2.some((item) => evaluations[`${id}:${item.id}`]?.decision === 'clarify')) return 'clarification'
+    return 'review'
+  }
+
+  const patch = (change: Partial<Evaluation>) => {
+    setMessage(null)
+    setEvaluations((current) => ({ ...current, [key]: { ...(current[key] ?? emptyEvaluation), ...change, saved: false } }))
+  }
+
+  const chooseDecision = (decision: Decision) => {
+    if (evaluation.locked) return
+    const score = decision === 'confirmed' ? String(claimed) : decision === 'rejected' ? '0' : decision === 'clarify' ? '' : evaluation.score
+    patch({ decision, score })
+  }
+
+  const save = () => {
+    if (!evaluation.decision) return
+    const value = Number(evaluation.score)
+    if (evaluation.decision !== 'clarify' && value > criterion.max) return setMessage({ tone: 'error', text: t('scoreTooHigh') })
+    if (evaluation.decision === 'partial' && (evaluation.score === '' || value <= 0 || value >= claimed)) return setMessage({ tone: 'error', text: t('scoreAboveClaim') })
+    if (evaluation.decision !== 'confirmed' && evaluation.comment.trim() === '') return setMessage({ tone: 'error', text: t('commentNeeded') })
+    setEvaluations((current) => ({ ...current, [key]: { ...evaluation, saved: true } }))
+    setMessage({ tone: 'ok', text: evaluation.decision === 'clarify' ? t('clarifySent') : t('evaluationSaved') })
+  }
+
+  const complete = () => {
+    setEvaluations((current) => {
+      const next = { ...current }
+      block2.forEach((item) => {
+        const id = `${applicant.id}:${item.id}`
+        if (next[id]?.saved) next[id] = { ...next[id], locked: true }
+      })
+      return next
+    })
+    setMessage({ tone: 'ok', text: t('locked') })
+  }
+
+  const canComplete = progress(applicant.id) === block2.length && !lockedAll(applicant.id)
+
+  const checks: Key[][] = [['ckFormat', 'ckFormatOk'], ['ckSize', 'ckSizeOk'], ['ckPeriod', 'ckPeriodOk'], ['ckApplies', 'ckAppliesOk'], ['ckRange', 'ckRangeOk']]
+  const nominationName = (id: string) => nominations.find((item) => item.id === id)?.name ?? ''
 
   return (
-    <WorkspaceShell role="Expert Reviewer" name="Dr. Sarah Mitchell" active="application">
+    <WorkspaceShell
+      role={t('roleExpert')}
+      name="Dr. Sarah Mitchell"
+      links={[
+        { href: '#queue', label: t('navAssigned'), icon: 'document', active: true },
+        { href: '#verification', label: t('navEvidence'), icon: 'upload' },
+      ]}
+    >
       <PageIntro
-        eyebrow="EXPERT PANEL · REVIEW CYCLE 02"
-        title="Assigned Applications"
-        text="Review submitted evidence independently against the published AITU assessment framework."
-        action={<div className="review-deadline"><Icon name="clock" /><span><small>REVIEW DEADLINE</small><strong>28 May 2025</strong></span></div>}
+        eyebrow={t('expertEyebrow')}
+        title={t('assignedTitle')}
+        text={t('assignedText')}
+        action={<div className="review-deadline"><Icon name="clock" /><span><small>{t('reviewDeadline')}</small><strong>{date(edition.reviewDeadline)}</strong></span></div>}
       />
 
-      <section className="content-panel assigned-panel" id="overview">
+      <section className="content-panel assigned-panel" id="queue">
         <div className="panel-toolbar">
-          <div><h2>Assigned applications</h2><p>3 applications in your current review queue</p></div>
-          <div className="table-filter"><Icon name="search" /><input aria-label="Search assigned applications" placeholder="Search applications" /></div>
+          <div><h2>{t('assignedTitle')}</h2><p>{t('queue', { n: queue.length })}</p></div>
+          <div className="table-filter"><Icon name="search" /><input aria-label={t('searchApplications')} placeholder={t('searchApplications')} /></div>
         </div>
         <div className="data-table-wrap">
           <table className="data-table">
-            <thead><tr><th>APPLICANT</th><th>ASSIGNED BLOCK</th><th>UPLOAD PROGRESS</th><th>STATUS</th><th /></tr></thead>
+            <thead><tr><th>{t('colApplicant')}</th><th>{t('colNomination')}</th><th>{t('colBlock')}</th><th>{t('colMyProgress')}</th><th>{t('colStatus')}</th><th /></tr></thead>
             <tbody>
-              {assignedApplications.map((application) => (
-                <tr key={application.teacher}>
-                  <td><strong>{application.teacher}</strong><small>Astana IT University</small></td>
-                  <td>{application.block}</td>
-                  <td><span className="mini-progress"><i><b style={{ width: `${parseInt(application.progress) / parseInt(application.progress.slice(-1)) * 100}%` }} /></i>{application.progress}</span></td>
-                  <td><StatusBadge tone={application.status === 'Ready for Review' ? 'success' : 'warning'}>{application.status}</StatusBadge></td>
-                  <td><button className="table-action" onClick={() => { setSelectedTeacher(application.teacher); document.querySelector('#verification')?.scrollIntoView({ behavior: 'smooth' }) }}>Review <Icon name="arrow" /></button></td>
+              {queue.map((item) => (
+                <tr key={item.id}>
+                  <td><strong>{item.name}</strong><small>{item.id}</small></td>
+                  <td>{nominationName(item.nomination)}</td>
+                  <td>{t('blockLine', { n: 2 })}</td>
+                  <td><span className="mini-progress"><i><b style={{ width: `${(progress(item.id) / block2.length) * 100}%` }} /></i>{t('evaluated', { a: progress(item.id), b: block2.length })}</span></td>
+                  <td><StatusBadge tone={statusTone(statusOf(item.id))}>{statusLabel[statusOf(item.id)][lang]}</StatusBadge></td>
+                  <td><button className="table-action" onClick={() => { setSelected(item.id); setMessage(null); document.querySelector('#verification')?.scrollIntoView({ behavior: 'smooth' }) }}>{t('reviewBtn')} <Icon name="arrow" /></button></td>
                 </tr>
               ))}
             </tbody>
@@ -351,15 +532,23 @@ export function ExpertReviewWorkspace() {
 
       <section className="verification-section" id="verification">
         <div className="verification-title">
-          <div><span>DETAILED VERIFICATION</span><h2>Criterion 2.3 · Published study guides</h2><p>{selectedTeacher} · Block II evidence review</p></div>
-          <StatusBadge tone="navy">Evidence 5 of 6</StatusBadge>
+          <div><span>{t('detailed')}</span><h2>{criterion.id} · {criterion.title[lang]}</h2><p>{applicant.name} · {t('blockLine', { n: 2 })}</p></div>
+          <StatusBadge tone="navy">{t('evaluated', { a: progress(applicant.id), b: block2.length })}</StatusBadge>
+        </div>
+
+        <div className="criterion-tabs" role="tablist">
+          {block2.map((item) => (
+            <button key={item.id} role="tab" aria-selected={item.id === criterion.id} className={item.id === criterion.id ? 'selected' : ''} onClick={() => { setCriterionId(item.id); setMessage(null) }}>
+              {item.id}{evaluations[`${applicant.id}:${item.id}`]?.saved && <Icon name="check" />}
+            </button>
+          ))}
         </div>
 
         <div className="verification-grid">
           <div className="document-panel">
             <div className="document-toolbar">
-              <div><Icon name="document" /><span><strong>study_guide_data_science_2023.pdf</strong><small>PDF · 4.8 MB · 36 pages</small></span></div>
-              <button>Open full screen</button>
+              <div><Icon name="document" /><span><strong>study_guide_data_science_2023.pdf</strong><small>PDF · 4.8 MB · 36</small></span></div>
+              <button>{t('openFull')}</button>
             </div>
             <div className="pdf-preview">
               <div className="pdf-page">
@@ -368,7 +557,7 @@ export function ExpertReviewWorkspace() {
                 <h3>DATA SCIENCE<br />STUDY GUIDE</h3>
                 <i />
                 <p>Undergraduate Programme<br />Academic Year 2023–2024</p>
-                <span>Prepared by<br /><strong>Gulnaz Yeskermes</strong></span>
+                <span>Prepared by<br /><strong>{applicant.name}</strong></span>
               </div>
               <div className="page-count">1 / 36</div>
             </div>
@@ -376,26 +565,51 @@ export function ExpertReviewWorkspace() {
 
           <div className="validation-column">
             <div className="ai-panel">
-              <div className="ai-heading"><span><Icon name="shield" /></span><div><small>AI-ASSISTED VALIDATION</small><h3>Evidence integrity check</h3></div><StatusBadge tone="success">Passed</StatusBadge></div>
-              <div className="validation-score"><span>94<small>%</small></span><div><strong>High confidence</strong><p>Document content aligns with the selected criterion.</p></div></div>
+              <div className="ai-heading"><span><Icon name="shield" /></span><div><small>{t('checksSub')}</small><h3>{t('checksTitle')}</h3></div><StatusBadge tone="success">{t('checksPassed', { a: checks.length, b: checks.length })}</StatusBadge></div>
               <ul>
-                <li><Icon name="check" /><span><strong>Document authenticity</strong><small>No irregularities detected</small></span></li>
-                <li><Icon name="check" /><span><strong>Criterion relevance</strong><small>Strong match to Criterion 2.3</small></span></li>
-                <li><Icon name="check" /><span><strong>Author verification</strong><small>Applicant name found on page 1</small></span></li>
-                <li className="warning-item"><Icon name="info" /><span><strong>Date confirmation</strong><small>Publication year verified as 2023</small></span></li>
+                {checks.map(([title, text]) => (
+                  <li key={title}><Icon name="check" /><span><strong>{t(title)}</strong><small>{t(text)}</small></span></li>
+                ))}
               </ul>
-              <p className="ai-note"><Icon name="info" /> AI findings are advisory. The final assessment remains the responsibility of the expert reviewer.</p>
+              <p className="ai-note"><Icon name="info" /> {t('checksNote')}</p>
             </div>
 
             <div className="review-form">
-              <label>Reviewer score <span>Maximum 3 points</span>
-                <div className="score-picker"><button>0</button><button>1</button><button>2</button><button className="selected">3</button></div>
+              <div className="claim-line"><span>{t('claimedScore')}</span><strong>{claimed} / {criterion.max}</strong></div>
+              <fieldset className="decision-group" disabled={evaluation.locked}>
+                <legend>{t('decision')}</legend>
+                {decisions.map((item) => (
+                  <button key={item.id} type="button" className={evaluation.decision === item.id ? `selected ${item.id}` : ''} onClick={() => chooseDecision(item.id)}>{t(item.label)}</button>
+                ))}
+              </fieldset>
+              {evaluation.decision !== 'clarify' && (
+                <label>{t('expertScore')} <span>{t('maxPoints', { n: criterion.max })}</span>
+                  <input
+                    className="score-input"
+                    type="number"
+                    min={0}
+                    max={criterion.max}
+                    value={evaluation.score}
+                    disabled={evaluation.locked || evaluation.decision !== 'partial'}
+                    onChange={(event) => patch({ score: event.target.value })}
+                  />
+                </label>
+              )}
+              {evaluation.decision === 'clarify' && (
+                <label>{t('clarifyDeadline')}
+                  <input className="score-input wide" type="date" value={evaluation.deadline} disabled={evaluation.locked} onChange={(event) => patch({ deadline: event.target.value })} />
+                </label>
+              )}
+              <label>{t('comment')}
+                <textarea value={evaluation.comment} disabled={evaluation.locked} onChange={(event) => patch({ comment: event.target.value })} />
               </label>
-              <label>Reviewer note<textarea defaultValue="The submitted study guide is complete, clearly attributed, and directly relevant to the criterion. Maximum score recommended." /></label>
+              {message && <p className={`form-message ${message.tone}`}>{message.text}</p>}
+              {evaluation.locked && <p className="form-message ok">{t('locked')}</p>}
               <div className="review-actions">
-                <button className="clarify-action">Request Clarification</button>
-                <button className="confirm-action"><Icon name="check" /> Confirm Evidence</button>
+                <button className="clarify-action" disabled={evaluation.locked || !evaluation.decision} onClick={save}>{t('saveEvaluation')}</button>
+                <button className="confirm-action" disabled={!canComplete} onClick={complete}><Icon name="check" /> {t('completeReview')}</button>
               </div>
+              <p className="hidden-note"><Icon name="info" /> {t('hiddenScores')}</p>
             </div>
           </div>
         </div>
@@ -404,71 +618,219 @@ export function ExpertReviewWorkspace() {
   )
 }
 
-const applicants = [
-  { id: 'AITU-250128', name: 'Gulnaz Yeskermes', department: 'Computational Sciences', completion: 82, status: 'In Review' },
-  { id: 'AITU-250127', name: 'Aigerim Sarsembayeva', department: 'General Education', completion: 100, status: 'Eligible' },
-  { id: 'AITU-250126', name: 'Daniyar Akhmetov', department: 'Cybersecurity', completion: 64, status: 'Incomplete' },
-  { id: 'AITU-250125', name: 'Mariya Kim', department: 'Business & Management', completion: 100, status: 'Eligible' },
-  { id: 'AITU-250124', name: 'Timur Nurgaliyev', department: 'Software Engineering', completion: 94, status: 'In Review' },
-]
-
 export function AdministratorWorkspace() {
+  const { t, lang, date } = useI18n()
   const [query, setQuery] = useState('')
-  const visibleApplicants = applicants.filter((applicant) => `${applicant.name} ${applicant.id} ${applicant.department}`.toLowerCase().includes(query.toLowerCase()))
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [nominationFilter, setNominationFilter] = useState('all')
+  const [rankNomination, setRankNomination] = useState('professor')
+  const [exportOpen, setExportOpen] = useState(false)
+
+  const nominationName = (id: string) => nominations.find((item) => item.id === id)?.name ?? ''
+  const visible = applicants.filter((item) => (
+    `${item.name} ${item.id} ${item.school}`.toLowerCase().includes(query.toLowerCase())
+    && (statusFilter === 'all' || item.status === statusFilter)
+    && (nominationFilter === 'all' || item.nomination === nominationFilter)
+  ))
+  const sum = (scores: number[]) => scores.reduce((a, b) => a + b, 0)
+
+  const total = applicants.length
+  const admitted = applicants.filter((item) => !['draft', 'submitted', 'check', 'returned'].includes(item.status)).length
+  const done = applicants.filter((item) => item.status === 'reviewDone').length
+  const clarifications = applicants.filter((item) => item.status === 'clarification').length
+  const metrics: { label: Key; value: number; note: string; icon: IconName; tone: string }[] = [
+    { label: 'mTotal', value: total, note: t('perWeek'), icon: 'document', tone: 'navy' },
+    { label: 'mAdmitted', value: admitted, note: t('ofTotal', { p: Math.round((admitted / total) * 100) }), icon: 'check', tone: 'emerald' },
+    { label: 'mDone', value: done, note: t('ofTotal', { p: Math.round((done / total) * 100) }), icon: 'shield', tone: 'blue' },
+    { label: 'mOverdue', value: 1, note: t('needsAttention'), icon: 'clock', tone: 'burgundy' },
+    { label: 'mClarify', value: clarifications, note: t('openRequests'), icon: 'info', tone: 'gold' },
+    { label: 'mCommission', value: done, note: t('afterReview'), icon: 'users', tone: 'navy' },
+  ]
+
+  const ranking = applicants
+    .filter((item) => item.nomination === rankNomination)
+    .sort((a, b) => sum(b.scores) - sum(a.scores))
+  const rankedNomination = nominations.find((item) => item.id === rankNomination)
+
+  const audit = [
+    { icon: 'check' as IconName, title: t('auditEligibility'), text: 'Amina Kassenova · AITU-260127', time: t('minAgo', { n: 12 }), oldValue: statusLabel.check[lang], newValue: statusLabel.admitted[lang], reason: '' },
+    { icon: 'users' as IconName, title: t('auditAssigned'), text: 'Dr. Sarah Mitchell · AITU-260128 · II', time: t('minAgo', { n: 48 }), oldValue: '—', newValue: t('blockLine', { n: 2 }), reason: '' },
+    { icon: 'shield' as IconName, title: t('auditReopened'), text: 'Amina Kassenova · AITU-260127 · II.2', time: t('hourAgo', { n: 1 }), oldValue: '24 / 30', newValue: '26 / 30', reason: t('auditReopenReason') },
+    { icon: 'document' as IconName, title: t('auditFile'), text: 'AITU-260128 · study_guide_data_science_2023.pdf', time: t('hourAgo', { n: 2 }), oldValue: 'v1', newValue: 'v2', reason: '' },
+    { icon: 'clock' as IconName, title: t('auditReminder'), text: 'AITU-260126', time: t('yesterday'), oldValue: '', newValue: '', reason: '' },
+  ]
 
   return (
-    <WorkspaceShell role="Administrator" name="Amina Kassenova" active="application">
+    <WorkspaceShell
+      role={t('roleAdmin')}
+      name="Amina Kassenova"
+      links={[
+        { href: '#overview', label: t('navOverview'), icon: 'grid' },
+        { href: '#applications', label: t('navApplications'), icon: 'document', active: true },
+        { href: '#ranking', label: t('navRanking'), icon: 'shield' },
+        { href: '#criteria', label: t('navCriteria'), icon: 'upload' },
+        { href: '#users', label: t('navExperts'), icon: 'users' },
+        { href: '#stages', label: t('navSettings'), icon: 'clock' },
+        { href: '#audit', label: t('navAudit'), icon: 'info' },
+      ]}
+    >
       <PageIntro
-        eyebrow="ADMINISTRATION · 2025 GLOBAL EDITION"
-        title="Application Registry"
-        text="Monitor application eligibility, completion, and review activity across the awards programme."
-        action={<button className="primary-action export-button">Export registry <Icon name="arrow" /></button>}
+        eyebrow={t('adminEyebrow')}
+        title={t('registryTitle')}
+        text={t('registryText')}
+        action={
+          <div className="export-menu">
+            <button className="primary-action export-button" onClick={() => setExportOpen(!exportOpen)} aria-expanded={exportOpen}>{t('exportRegistry')} <Icon name="arrow" /></button>
+            {exportOpen && (
+              <div className="export-options">
+                <button onClick={() => setExportOpen(false)}>{t('exportXlsx')}</button>
+                <button onClick={() => setExportOpen(false)}>{t('exportPdf')}</button>
+              </div>
+            )}
+          </div>
+        }
       />
 
-      <section className="metric-cards" id="overview">
-        <div><span className="metric-icon navy"><Icon name="document" /></span><p>TOTAL APPLICATIONS</p><strong>128</strong><small>+14 this week</small></div>
-        <div><span className="metric-icon emerald"><Icon name="check" /></span><p>ELIGIBLE</p><strong>104</strong><small>81.3% of total</small></div>
-        <div><span className="metric-icon blue"><Icon name="shield" /></span><p>COMPLETED</p><strong>76</strong><small>59.4% of total</small></div>
-        <div><span className="metric-icon burgundy"><Icon name="clock" /></span><p>OVERDUE</p><strong>8</strong><small>Requires attention</small></div>
+      <section className="metric-cards six" id="overview">
+        {metrics.map((metric) => (
+          <div key={metric.label}>
+            <span className={`metric-icon ${metric.tone}`}><Icon name={metric.icon} /></span>
+            <p>{t(metric.label)}</p><strong>{metric.value}</strong><small>{metric.note}</small>
+          </div>
+        ))}
       </section>
 
-      <section className="content-panel registry-panel" id="application">
+      <section className="content-panel registry-panel" id="applications">
         <div className="panel-toolbar registry-toolbar">
-          <div><h2>Applicant registry</h2><p>Showing {visibleApplicants.length} of 128 applications</p></div>
+          <div><h2>{t('registry')}</h2><p>{t('showing', { a: visible.length, b: total })}</p></div>
           <div className="registry-filters">
-            <div className="table-filter registry-search"><Icon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="Search applicants" placeholder="Search by name or ID" /></div>
-            <select aria-label="Filter by status"><option>All statuses</option><option>Eligible</option><option>In Review</option><option>Incomplete</option></select>
-            <select aria-label="Filter by block"><option>All blocks</option><option>Block I</option><option>Block II</option><option>Block III</option></select>
+            <div className="table-filter registry-search"><Icon name="search" /><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label={t('searchByName')} placeholder={t('searchByName')} /></div>
+            <select aria-label={t('allStatuses')} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+              <option value="all">{t('allStatuses')}</option>
+              {(Object.keys(statusLabel) as Status[]).map((status) => <option key={status} value={status}>{statusLabel[status][lang]}</option>)}
+            </select>
+            <select aria-label={t('allNominations')} value={nominationFilter} onChange={(event) => setNominationFilter(event.target.value)}>
+              <option value="all">{t('allNominations')}</option>
+              {nominations.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+            </select>
           </div>
         </div>
         <div className="data-table-wrap">
           <table className="data-table registry-table">
-            <thead><tr><th>APPLICATION ID</th><th>APPLICANT</th><th>DEPARTMENT</th><th>COMPLETION</th><th>STATUS</th><th>LAST UPDATED</th><th /></tr></thead>
+            <thead><tr><th>{t('colId')}</th><th>{t('colApplicant')}</th><th>{t('colSchool')}</th><th>{t('colNomination')}</th><th>{t('colExpert')}</th><th>{t('colCompletion')}</th><th>{t('colTotal')}</th><th>{t('colStatus')}</th><th>{t('colUpdated')}</th><th /></tr></thead>
             <tbody>
-              {visibleApplicants.map((applicant, index) => (
-                <tr key={applicant.id}>
-                  <td><strong>{applicant.id}</strong></td>
-                  <td><div className="applicant-cell"><span>{applicant.name.split(' ').map((part) => part[0]).join('')}</span><strong>{applicant.name}</strong></div></td>
-                  <td>{applicant.department}</td>
-                  <td><span className="mini-progress"><i><b style={{ width: `${applicant.completion}%` }} /></i>{applicant.completion}%</span></td>
-                  <td><StatusBadge tone={applicant.status === 'Eligible' ? 'success' : applicant.status === 'Incomplete' ? 'error' : 'warning'}>{applicant.status}</StatusBadge></td>
-                  <td><span className="date-cell">{14 - index} May 2025<small>{10 + index}:24 AM</small></span></td>
-                  <td><button className="more-button" aria-label={`Actions for ${applicant.name}`}>•••</button></td>
+              {visible.map((item) => (
+                <tr key={item.id}>
+                  <td><strong>{item.id}</strong></td>
+                  <td><div className="applicant-cell"><span>{initials(item.name)}</span><strong>{item.name}</strong></div></td>
+                  <td>{item.school}</td>
+                  <td>{nominationName(item.nomination)}</td>
+                  <td>{item.expert}</td>
+                  <td><span className="mini-progress"><i><b style={{ width: `${item.completion}%` }} /></i>{item.completion}%</span></td>
+                  <td><strong>{sum(item.scores)} / 100</strong></td>
+                  <td><StatusBadge tone={statusTone(item.status)}>{statusLabel[item.status][lang]}</StatusBadge></td>
+                  <td><span className="date-cell">{date(item.updated)}</span></td>
+                  <td><button className="more-button" aria-label={item.name}>•••</button></td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="table-footer"><span>Rows per page: <b>10</b></span><span>1–5 of 128</span><button disabled>‹</button><button>›</button></div>
+        <div className="table-footer"><span>{t('rows')} <b>10</b></span><span>1–{visible.length} / {total}</span><button disabled>‹</button><button disabled>›</button></div>
       </section>
 
-      <section className="audit-section">
-        <div className="audit-heading"><div><span>SYSTEM ACTIVITY</span><h2>Audit Log</h2></div><button>View complete log <Icon name="arrow" /></button></div>
+      <section className="content-panel admin-section" id="ranking">
+        <div className="panel-toolbar">
+          <div><span className="section-eyebrow">{t('rankingEyebrow')}</span><h2>{t('rankingTitle')}</h2><p>{t('rankingNote')}</p></div>
+        </div>
+        <div className="criterion-tabs inline" role="tablist">
+          {nominations.filter((item) => item.applicable).map((item) => (
+            <button key={item.id} role="tab" aria-selected={item.id === rankNomination} className={item.id === rankNomination ? 'selected' : ''} onClick={() => setRankNomination(item.id)}>{item.name}</button>
+          ))}
+          <span className="pass-line">{t('passLine', { n: rankedNomination?.pass ?? 0 })}</span>
+        </div>
+        <div className="data-table-wrap">
+          <table className="data-table">
+            <thead><tr><th>{t('colRank')}</th><th>{t('colApplicant')}</th><th>{t('colAcademic')}</th><th>{t('colMethod')}</th><th>{t('colOrg')}</th><th>{t('colTotal')}</th><th /></tr></thead>
+            <tbody>
+              {ranking.map((item, index) => (
+                <tr key={item.id}>
+                  <td><strong>{index + 1}</strong></td>
+                  <td><strong>{item.name}</strong><small>{item.id}</small></td>
+                  <td>{item.scores[0]}</td><td>{item.scores[1]}</td><td>{item.scores[2]}</td>
+                  <td><strong>{sum(item.scores)}</strong></td>
+                  <td><StatusBadge tone={sum(item.scores) >= (rankedNomination?.pass ?? 0) ? 'success' : 'error'}>{sum(item.scores) >= (rankedNomination?.pass ?? 0) ? t('passed') : t('belowPass')}</StatusBadge></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="content-panel admin-section" id="criteria">
+        <div className="panel-toolbar">
+          <div><span className="section-eyebrow">{t('criteriaEyebrow')}</span><h2>{t('criteriaAdminTitle')}</h2><p>{t('criteriaAdminText')}</p></div>
+          <button className="outline-action">{t('editCriteria')}</button>
+        </div>
+        <div className="data-table-wrap">
+          <table className="data-table">
+            <thead><tr><th>{t('colCode')}</th><th>{t('colCriterion')}</th><th>{t('colMax')}</th><th>{t('colSource')}</th></tr></thead>
+            <tbody>
+              {([1, 2, 3] as const).map((block) => (
+                <Fragment key={block}>
+                  <tr className="block-row-head"><td colSpan={2}><strong>{t(`block${block}` as Key)}</strong></td><td><strong>{criteria.filter((item) => item.block === block).reduce((a, item) => a + item.max, 0)} / {blockMax[block]}</strong></td><td>{t('blockTotal')}</td></tr>
+                  {criteria.filter((item) => item.block === block).map((item) => (
+                    <tr key={item.id}><td><strong>{item.id}</strong></td><td>{item.title[lang]}</td><td>{item.max}</td><td>{sourceLabel[item.source][lang]}</td></tr>
+                  ))}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="content-panel admin-section" id="users">
+        <div className="panel-toolbar">
+          <div><span className="section-eyebrow">{t('usersEyebrow')}</span><h2>{t('usersTitle')}</h2><p>{t('usersText')}</p></div>
+          <button className="outline-action">{t('manageUsers')}</button>
+        </div>
+        <ul className="plain-list">
+          <li><Icon name="users" /> {t('expertsRow1')}</li>
+          <li><Icon name="users" /> {t('expertsRow2')}</li>
+        </ul>
+      </section>
+
+      <section className="content-panel admin-section" id="stages">
+        <div className="panel-toolbar">
+          <div><span className="section-eyebrow">{t('stagesEyebrow')}</span><h2>{t('stagesTitle')}</h2></div>
+          <button className="outline-action">{t('editStages')}</button>
+        </div>
+        <ol className="stage-list">
+          {stages.map((stage, index) => (
+            <li key={stage.key}><small>0{index + 1}</small><strong>{t(stage.key as Key)}</strong><span>{stage.from === stage.to ? date(stage.from) : `${date(stage.from)} — ${date(stage.to)}`}</span></li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="audit-section" id="audit">
+        <div className="audit-heading"><div><span>{t('auditEyebrow')}</span><h2>{t('auditTitle')}</h2></div><button>{t('viewLog')} <Icon name="arrow" /></button></div>
         <div className="audit-list">
-          <div><span className="audit-icon"><Icon name="check" /></span><p><strong>Eligibility status updated</strong><small>Amina Kassenova marked AITU-250127 as eligible</small></p><time>12 minutes ago</time></div>
-          <div><span className="audit-icon blue"><Icon name="users" /></span><p><strong>Reviewer assigned</strong><small>Dr. Sarah Mitchell assigned to Gulnaz Yeskermes · Block II</small></p><time>48 minutes ago</time></div>
-          <div><span className="audit-icon gold"><Icon name="document" /></span><p><strong>Evidence file replaced</strong><small>Applicant AITU-250128 uploaded study_guide_data_science_2023.pdf</small></p><time>2 hours ago</time></div>
-          <div><span className="audit-icon burgundy"><Icon name="clock" /></span><p><strong>Deadline reminder issued</strong><small>Automated reminder sent to 8 overdue applicants</small></p><time>Yesterday, 4:30 PM</time></div>
+          {audit.map((entry) => (
+            <details key={entry.title} className="audit-entry">
+              <summary>
+                <span className="audit-icon"><Icon name={entry.icon} /></span>
+                <p><strong>{entry.title}</strong><small>{entry.text}</small></p>
+                <time>{entry.time}</time>
+              </summary>
+              {(entry.oldValue || entry.newValue) && (
+                <dl className="audit-detail">
+                  <div><dt>{t('oldValue')}</dt><dd>{entry.oldValue}</dd></div>
+                  <div><dt>{t('newValue')}</dt><dd>{entry.newValue}</dd></div>
+                  {entry.reason && <div><dt>{t('reason')}</dt><dd>{entry.reason}</dd></div>}
+                </dl>
+              )}
+            </details>
+          ))}
         </div>
       </section>
     </WorkspaceShell>
